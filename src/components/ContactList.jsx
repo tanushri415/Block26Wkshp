@@ -1,11 +1,26 @@
-import { useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from 'react';
 import ContactRow from './ContactRow';
 import '../App.css';
-import { dummyContacts } from './dummyContacts';
 
-const ContactList = () => {
-  const [contacts, setContacts] = useState(dummyContacts);
-  console.log('contacts:', contacts);
+const ContactList = ({ setSelectedContactId }) => {
+  const [contacts, setContacts] = useState(null);
+
+  useEffect(() => {
+    async function fetchContacts() {
+      try {
+        const res = await fetch(
+          'https://fsa-jsonplaceholder-69b5c48f1259.herokuapp.com/users'
+        );
+        const result = await res.json();
+        console.info(result);
+        setContacts(result);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchContacts();
+  }, []);
 
   return (
     <table>
@@ -16,12 +31,18 @@ const ContactList = () => {
       </thead>
       <tbody>
         <tr>
-          <td>Name</td>
-          <td>Email</td>
-          <td>Phone</td>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
         </tr>
-        {contacts.map((contact) => {
-          return <ContactRow key={contact.id} contact={contact} />;
+        {contacts?.map((contact) => {
+          return (
+            <ContactRow
+              key={contact.id}
+              setSelectedContactId={setSelectedContactId}
+              contact={contact}
+            />
+          );
         })}
       </tbody>
     </table>
